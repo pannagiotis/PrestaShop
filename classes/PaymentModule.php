@@ -867,15 +867,16 @@ abstract class PaymentModuleCore extends Module
                     }
 
                     $order->updateOrderDetailTax();
-
-                    // sync all stock
-                    (new StockManager())->updatePhysicalProductQuantity(
-                        (int)$order->id_shop,
-                        (int)Configuration::get('PS_OS_ERROR'),
-                        (int)Configuration::get('PS_OS_CANCELED'),
-                        null,
-                        (int)$order->id
-                    );
+                    foreach ($order->product_list as $product) {					
+                        // sync all stock
+                        (new StockManager())->updatePhysicalProductQuantity(
+                            (int)$order->id_shop,
+                            (int)Configuration::get('PS_OS_ERROR'),
+                            (int)Configuration::get('PS_OS_CANCELED'),
+                            $product['id_product'],
+                            (int)$order->id
+                        );
+                   }
                 } else {
                     $error = $this->trans('Order creation failed', array(), 'Admin.Payment.Notification');
                     PrestaShopLogger::addLog($error, 4, '0000002', 'Cart', intval($order->id_cart));
